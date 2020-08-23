@@ -8,6 +8,8 @@
 #include <string>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
+char* compare;
+
 typedef struct IPHeader{
     unsigned char IHL : 4; //  Header Length(4 bits), IP 헤더의 길이를 알 수 있는 필드값 * 4 하면 헤더 길이가 나옴. 일반적으로는 20이지만, 고정은 아니라고 함.
     unsigned char Version : 4; // IPv4 or IPv6(4 bits) 버전 확인 와 이게 뭔지 몰랐는데 검색해보니 비트 필드라는 것이다. Nibble 단위를 써본 적이 없으니.. 대신, struct에서만 사용 가능한듯?
@@ -81,7 +83,7 @@ bool isHostInBlackList(struct nfq_data *tb)
                     break;
             }
             length = index - (i + 6);
-            char* compare = "test.gilgil.net";
+            
             for(int j = 0; j < length; j++)
             {
                 if(compare[j] == buf[i+6+j])
@@ -167,6 +169,10 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 
 int main(int argc, char **argv)
 {
+    if(argc != 2)
+        return printf("[!] Usage : %s <host>\n", argv[0]");
+    
+    compare = argv[1]; 
     struct nfq_handle *h;
     struct nfq_q_handle *qh;
     struct nfnl_handle *nh;
